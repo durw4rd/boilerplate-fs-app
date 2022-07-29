@@ -11,5 +11,8 @@
     "tsc": "tsc --build",
     "clean": "rimraf build tsconfig.tsbuildinfo",
     "build": "yarn clean && yarn tsc"
+  },
+  "dependencies": {
+    "launchdarkly-node-server-sdk": "^6.4.2"
   }
 }

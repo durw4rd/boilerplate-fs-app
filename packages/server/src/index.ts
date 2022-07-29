@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import * as ld from 'launchdarkly-node-server-sdk';
 import { join } from 'path';
 
 import { App_Name } from '@my-app/common';
@@ -23,4 +24,27 @@ app.get('*', (req: any, res: any) => {
 // start the Express server
 app.listen(port, () => {
     console.log(`app ${App_Name} started at http://localhost:${port}` );
+
+    const LDClient = ld.init('sdk-b9bfe0c9-8339-4bcc-83bc-3c42830a6b2e');
+    let user = {
+        "key": "hash#123",
+        "name": "Server User One"
+    };
+
+    LDClient.waitForInitialization().then( () => {
+        console.log("LD Client is ready");
+        const allFlags = LDClient.allFlagsState(user, { "withReasons": true }, (err, LDFlagsState) => {
+            console.log(LDFlagsState);
+            const flagsJSON = LDFlagsState.toJSON();
+            console.log(flagsJSON);
+
+            console.log(LDFlagsState.getFlagReason("multivariate-flag"));
+        });
+        const singleFlag = LDClient.variation("multivariate-flag", user, false, (err, flagValue) => {
+            console.log(flagValue);
+        });
+    }).catch(function(error) {
+        console.log("SDK failed to initialize: " + error);
+        process.exit(1);
+    });;
 });
